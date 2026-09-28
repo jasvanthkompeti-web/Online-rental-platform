@@ -1,0 +1,12 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cart - RentX</title><link rel="stylesheet" href="style.css"></head>
+<body><nav><a class="logo" href="/">RentX</a><a href="/">Continue Shopping</a></nav>
+<main class="section"><h1>Your Rental Cart</h1><div id="cart"></div><div id="summary"></div></main>
+<script>
+function get(){return JSON.parse(localStorage.getItem('rentxCart')||'[]')}
+function save(c){localStorage.setItem('rentxCart',JSON.stringify(c))}
+function render(){let c=get(),el=document.getElementById('cart');if(!c.length){el.innerHTML='<div class="empty"><h2>Your cart is empty</h2><a class="btn" href="/">Browse Electronics</a></div>';summary.innerHTML='';return}
+el.innerHTML=c.map((x,i)=>`<div class="cart-item"><img src="${x.image}"><div class="grow"><h3>${x.name}</h3><p>₹${x.price}/day</p></div><div class="qty"><button onclick="change(${i},-1)">−</button>${x.quantity}<button onclick="change(${i},1)">+</button></div><strong>₹${x.price*x.quantity}/day</strong><button onclick="removeItem(${i})">✕</button></div>`).join('');
+summary.innerHTML='<div class="cart-summary"><h2>Next step</h2><p>Choose your rental dates and customer details at checkout.</p><a class="btn" href="checkout.html">Proceed to Checkout →</a></div>'}
+function change(i,n){let c=get();c[i].quantity=Math.max(1,Math.min(3,c[i].quantity+n));save(c);render()}
+function removeItem(i){let c=get();c.splice(i,1);save(c);render()} render();
+</script></body></html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Invoice - RentX</title><link rel="stylesheet" href="style.css"></head>
+<body><nav><a class="logo" href="/">RentX</a><a href="/">Home</a></nav><main class="invoice" id="invoice">Loading bill...</main>
+<script>
+const id=new URLSearchParams(location.search).get('id');
+fetch('/api/orders/'+id).then(r=>r.json()).then(d=>{let o=d.order;
+invoice.innerHTML=`<div class="invoice-head"><div><h1>RentX</h1><p>Electronics Rental Invoice</p></div><button class="btn" onclick="print()">Print Bill</button></div>
+<div class="invoice-meta"><div><b>Invoice #</b><br>RX-${String(o.id).padStart(6,'0')}</div><div><b>Date</b><br>${o.createdAt.replace('T',' ')}</div><div><b>Status</b><br>${o.status}</div></div>
+<h3>Customer</h3><p>${o.customerName}<br>${o.customerEmail} • ${o.phone}<br>${o.address}</p>
+<p><b>Rental period:</b> ${o.startDate} to ${o.endDate} (${o.days} day(s))</p>
+<table><tr><th>Item</th><th>Qty</th><th>Rate/day</th><th>Amount</th></tr>${d.items.map(x=>`<tr><td>${x.productName}</td><td>${x.quantity}</td><td>₹${x.pricePerDay}</td><td>₹${x.lineTotal}</td></tr>`).join('')}</table>
+<div class="totals"><p>Rental subtotal: ₹${o.rentalSubtotal}</p><p>Security deposit: ₹${o.securityDeposit}</p><h2>Grand Total: ₹${o.grandTotal}</h2><p>Payment: ${o.paymentMethod} — ${o.paymentStatus}</p></div>
+<div class="notice">Keep this invoice for pickup/return. The security deposit is shown separately from the rental charges.</div>`});
+</script></body></html>

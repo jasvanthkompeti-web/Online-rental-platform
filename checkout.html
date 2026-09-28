@@ -1,0 +1,17 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Checkout - RentX</title><link rel="stylesheet" href="style.css"></head>
+<body><nav><a class="logo" href="/">RentX</a><a href="cart.html">← Cart</a></nav>
+<main class="checkout"><div class="form-card"><h1>Checkout</h1><form id="form">
+<input id="name" placeholder="Full name" required><input id="email" type="email" placeholder="Email" required><input id="phone" placeholder="Phone number" required><textarea id="address" placeholder="Delivery / pickup address" required></textarea>
+<label>Rental start</label><input id="start" type="date" required><label>Rental end</label><input id="end" type="date" required>
+<label>Payment method</label><select id="payment"><option value="DEMO_CARD">Demo Card Payment</option><option value="PAY_ON_PICKUP">Pay on Pickup</option></select>
+<div id="bill" class="mini-bill"></div><button class="btn" type="submit">Confirm & Pay Demo</button></form><p id="msg"></p></div>
+<div class="checkout-side"><h2>Your Items</h2><div id="items"></div></div></main>
+<script>
+const cart=JSON.parse(localStorage.getItem('rentxCart')||'[]');const items=document.getElementById('items');
+items.innerHTML=cart.map(x=>`<div class="mini-item"><span>${x.name} × ${x.quantity}</span><b>₹${x.price*x.quantity}/day</b></div>`).join('');
+function calc(){if(!cart.length)return;let a=new Date(start.value),b=new Date(end.value),d=Math.ceil((b-a)/86400000);let rental=cart.reduce((s,x)=>s+x.price*x.quantity,0)*Math.max(0,d);let dep=cart.reduce((s,x)=>s+x.deposit*x.quantity,0);bill.innerHTML=d>0?`<p>${d} rental day(s)</p><p>Rental subtotal: <b>₹${rental}</b></p><p>Security deposit: <b>₹${dep}</b></p><hr><h2>Total: ₹${rental+dep}</h2>`:''}
+start.onchange=end.onchange=calc;
+form.onsubmit=async e=>{e.preventDefault();if(!cart.length){msg.textContent='Cart is empty';return}let body={customerName:name.value,customerEmail:email.value,phone:phone.value,address:address.value,startDate:start.value,endDate:end.value,paymentMethod:payment.value,items:cart.map(x=>({productId:x.id,quantity:x.quantity}))};
+let r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});let d=await r.json().catch(()=>({}));
+if(r.ok){localStorage.removeItem('rentxCart');location.href='invoice.html?id='+d.orderId}else msg.textContent=d.message||'Unable to create rental'};
+</script></body></html>
